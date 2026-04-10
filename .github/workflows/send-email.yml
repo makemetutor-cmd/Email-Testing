@@ -1,0 +1,44 @@
+name: Send Email with Attachment
+
+on:
+  workflow_dispatch:
+    inputs:
+      attachment_path:
+        description: 'Path to file to attach'
+        required: false
+        default: ''
+      email_subject:
+        description: 'Email subject'
+        required: false
+        default: 'GitHub Notification'
+
+jobs:
+  send-email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create test attachment
+        run: |
+          echo "Test file created at $(date)" > test.txt
+          echo "Repository: ${{ github.repository }}" >> test.txt
+
+      - name: Send email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: ${{ inputs.email_subject }}
+          to: ${{ secrets.MAIL_TO }}
+          from: codesbro32@gmail.com
+          body: |
+            Email sent from GitHub Actions!
+            
+            Run ID: ${{ github.run_id }}
+            Triggered by: ${{ github.actor }}
+          
+          attachments: ${{ inputs.attachment_path != '' && inputs.attachment_path || 'test.txt' }}
