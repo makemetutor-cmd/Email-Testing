@@ -1,33 +1,16 @@
-name: Send Email with Attachment
+name: Simple Email Test
 
 on:
   workflow_dispatch:
-    inputs:
-      attachment_path:
-        description: 'Path to file to attach'
-        required: false
-        default: ''
-      email_subject:
-        description: 'Email subject'
-        required: false
-        default: 'GitHub Notification'
 
 jobs:
-  send-email:
+  test-email:
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Create test attachment
-        run: |
-          echo "Test file created at $(date)" > test.txt
-          echo "Repository: ${{ github.repository }}" >> test.txt
-
-      - name: Send email
+      - name: Send test email
         uses: dawidd6/action-send-mail@v4
         with:
           server_address: smtp.gmail.com
@@ -35,14 +18,7 @@ jobs:
           secure: true
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: ${{ inputs.email_subject }}
+          subject: "Test from GitHub Actions"
           to: ${{ secrets.MAIL_TO }}
           from: codesbro32@gmail.com
-          body: |
-            Email sent from GitHub Actions!
-            
-            Repository: ${{ github.repository }}
-            Run ID: ${{ github.run_id }}
-            Triggered by: ${{ github.actor }}
-          
-          attachments: ${{ inputs.attachment_path != '' && inputs.attachment_path || 'test.txt' }}
+          body: "This is a test email from GitHub Actions."
